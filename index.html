@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>风起拾光</title>
+    <style>
+        :root {
+            --bg: #f5f0eb;
+            --card: #ffffff;
+            --text: #2c2c2c;
+            --accent: #d4a373;
+            --shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', '宋体', serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        /* 导航 & 返回 */
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #3a2a1a;
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+        .logo span {
+            color: var(--accent);
+        }
+        .subtitle {
+            color: #8b7a65;
+            margin-top: 0.3rem;
+            font-size: 0.95rem;
+        }
+        .back-row {
+            margin-bottom: 1.8rem;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: none;
+            border: 1px solid #d4c5b0;
+            border-radius: 25px;
+            padding: 0.4rem 1.2rem;
+            color: #5e4c3a;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            background: #efe4d7;
+        }
+
+        /* 页面 */
+        .page {
+            display: none;
+            animation: fadeIn 0.35s ease;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 今日幸运色卡片 */
+        .lucky-color {
+            background: linear-gradient(135deg, #fff8f0, #ffffff);
+            border-left: 5px solid var(--accent);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: var(--shadow);
+        }
+        .color-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: background 0.5s;
+        }
+        .lucky-text {
+            font-size: 0.95rem;
+            color: #5e4c3a;
+        }
+        .lucky-text strong {
+            font-size: 1.1rem;
+            color: #3a2a1a;
+        }
+
+        /* 卡片网格 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: var(--card);
+            border-radius: 18px;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.25s;
+            border: 1px solid #f0e8dd;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 28px rgba(0,0,0,0.07);
+            border-color: #d4b896;
+        }
+        .card-icon {
+            font-size: 2.5rem;
+        }
+        .card-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #3a2a1a;
+        }
+        .card-desc {
+            font-size: 0.8rem;
+            color: #9b8b7a;
+            line-height: 1.4;
+        }
+
+        /* 文章卡片 */
+        .article-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 1.8rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.25s;
+            border: 1px solid #f0e8dd;
+        }
+        .article-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.07);
+        }
+        .article-card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: #2c2416;
+        }
+        .meta {
+            font-size: 0.8rem;
+            color: #ab9a86;
+            margin-bottom: 0.8rem;
+        }
+        .summary {
+            color: #5f5346;
+        }
+        .full-content {
+            display: none;
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
+            border-top: 1px dashed #e4d9cd;
+            color: #3d3529;
+            line-height: 1.9;
+        }
+        .article-card.open .full-content {
+            display: block;
+        }
+
+        /* 底部 */
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #b7a797;
+            font-size: 0.85rem;
+            border-top: 1px solid #e8ddd0;
+            margin-top: auto;
+        }
+
+        /* 工具页特定样式 */
+        .tools-grid .card {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 首页 / 仪表盘 -->
+    <div class="page active" id="page-home">
+        <div class="header">
+            <div class="logo">风起<span>拾光</span></div>
+            <div class="subtitle">收集微光，安静记录</div>
+        </div>
+        <div class="lucky-color">
+            <div class="color-box" id="luckyColorBox"></div>
+            <div class="lucky-text">
+                今日幸运色 <strong id="luckyColorName"></strong><br>
+                <span style="font-size:0.8rem;">愿这一抹色彩点亮你的日常</span>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="card" onclick="navigateTo('/blog')">
+                <div class="card-icon">📝</div>
+                <div class="card-title">文字</div>
+                <div class="card-desc">阅读 & 书写</div>
+            </div>
+            <div class="card" onclick="navigateTo('/tools')">
+                <div class="card-icon">🔧</div>
+                <div class="card-title">工具</div>
+                <div class="card-desc">实用小工具</div>
+            </div>
+            <div class="card" onclick="alert('关于页面即将到来')">
+                <div class="card-icon">🌿</div>
+                <div class="card-title">关于</div>
+                <div class="card-desc">我与这里</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文字页 / 博客 -->
+    <div class="page" id="page-blog">
+        <div class="back-row">
+            <button class="back-btn" onclick="navigateTo('/')">← 返回首页</button>
+        </div>
+        <div id="articlesContainer"></div>
+    </div>
+
+    <!-- 工具页 -->
+    <div class="page" id="page-tools">
+        <div class="back-row">
+            <button class="back-btn" onclick="navigateTo('/')">← 返回首页</button>
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+            <h2 style="color: #3a2a1a; margin-bottom: 0.2rem;">🧰 工具箱</h2>
+            <div style="color: #8b7a65; font-size:0.9rem;">顺手做的一些小玩意儿</div>
+        </div>
+        <div class="grid tools-grid">
+            <div class="card" onclick="window.open('https://legado-svg.heartthrob.cn/', '_blank')">
+                <div class="card-icon">💬</div>
+                <div class="card-title">阅读气泡</div>
+                <div class="card-desc">生成 SVG 书摘气泡</div>
+            </div>
+            <!-- 未来添加更多工具卡片 -->
+            <div class="card" onclick="alert('更多工具开发中～')">
+                <div class="card-icon">🛠️</div>
+                <div class="card-title">即将到来</div>
+                <div class="card-desc">敬请期待</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    © 2026 风起 · 安静写字，温柔记录
+</footer>
+
+<script>
+    // === 今日幸运色 ===
+    const dayColors = [
+        { name: '珊瑚橘', code: '#FA7A61' },
+        { name: '月光蓝', code: '#7A9EB1' },
+        { name: '薄荷绿', code: '#7EC8A0' },
+        { name: '鸢尾紫', code: '#9A7AA0' },
+        { name: '琥珀黄', code: '#E5A845' },
+        { name: '烟粉色', code: '#D4A5A5' },
+        { name: '松石青', code: '#6BA3A0' }
+    ];
+    const today = new Date().getDay();
+    const luckyColor = dayColors[today];
+    document.getElementById('luckyColorBox').style.backgroundColor = luckyColor.code;
+    document.getElementById('luckyColorName').textContent = luckyColor.name + ' ' + luckyColor.code;
+
+    // === 路由系统 ===
+    function getRoute() {
+        // 获取 hash，去掉 #，统一格式为 "/xxx"
+        let hash = location.hash.replace('#', '');
+        if (!hash || hash === '/') return '/';
+        // 确保以 / 开头
+        if (hash[0] !== '/') hash = '/' + hash;
+        return hash;
+    }
+
+    function showPage(route) {
+        // 隐藏所有页面
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        // 映射路由到页面 ID
+        const pageMap = {
+            '/': 'page-home',
+            '/blog': 'page-blog',
+            '/tools': 'page-tools'
+        };
+        const pageId = pageMap[route] || 'page-home';
+        document.getElementById(pageId).classList.add('active');
+
+        // 如果是博客页，且文章未渲染则渲染
+        if (route === '/blog' && document.getElementById('articlesContainer').children.length === 0) {
+            renderArticles();
+        }
+    }
+
+    function navigateTo(path) {
+        location.hash = '#' + path;
+    }
+
+    // 监听 hash 变化
+    window.addEventListener('hashchange', () => {
+        showPage(getRoute());
+    });
+
+    // 页面首次加载
+    window.addEventListener('load', () => {
+        showPage(getRoute());
+    });
+
+    // === 文章数据与渲染 ===
+    const articles = [
+        {
+            title: "第一篇：风起之时",
+            date: "2026-07-10",
+            summary: "终于把博客安在了 feng.heartthrob.cn，像在数字世界里种下一棵小树。",
+            content: "<p>一直想要一个安静写字的地方。heartthrob 是心动，feng 是我。把这二者连接在一起，就成了这个小小的自留地。</p><p>以后这里会记录一些技术碎片、读书笔记，以及生活中那些忽然心动的瞬间。希望自己能坚持写下去。</p>"
+        },
+        {
+            title: "阅读工具的诞生",
+            date: "2026-07-08",
+            summary: "顺手做了个阅读气泡小工具，能生成 SVG 对话气泡，方便做书摘图。",
+            content: "<p>某天读书时想摘抄几句，做成好看的图片分享。于是就动手写了一个纯前端工具，可以自定义气泡样式和文字，直接导出 SVG。</p><p>现在它已经跑在 legado-svg.heartthrob.cn 了，在「工具」页里点击卡片就能打开使用。</p>"
+        },
+        {
+            title: "今日幸运色是怎么来的",
+            date: "2026-07-06",
+            summary: "给博客加了一个小彩蛋：每天自动换一种幸运色，让页面多一点期待。",
+            content: "<p>灵感来自于小时候的幸运色占卜。我预设了七种温柔的颜色，分别对应一周七天。每次打开博客，首页就会根据当天的星期显示一种颜色。</p><p>颜色名称都带一点诗意，希望你喜欢这种小小的仪式感。</p>"
+        }
+    ];
+
+    function renderArticles() {
+        const container = document.getElementById('articlesContainer');
+        articles.forEach(article => {
+            const card = document.createElement('div');
+            card.className = 'article-card';
+            card.innerHTML = `
+                <h2>${article.title}</h2>
+                <div class="meta">📅 ${article.date}</div>
+                <div class="summary">${article.summary}</div>
+                <div class="full-content">${article.content}</div>
+            `;
+            card.addEventListener('click', function(e) {
+                this.classList.toggle('open');
+            });
+            container.appendChild(card);
+        });
+    }
+</script>
+</body>
+</html>
