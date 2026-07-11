@@ -7,7 +7,7 @@
     <style>
         :root {
             --bg: #f5f0eb;
-            --card: #ffffff;
+            --card-bg: #ffffff;
             --text: #2c2c2c;
             --accent: #d4a373;
             --shadow: 0 4px 20px rgba(0,0,0,0.04);
@@ -17,7 +17,7 @@
             font-family: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', '宋体', serif;
             background: var(--bg);
             color: var(--text);
-            line-height: 1.8;
+            line-height: 1.6;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -29,6 +29,8 @@
             flex: 1;
             width: 100%;
         }
+
+        /* 头部 */
         .header { text-align: center; margin-bottom: 2.5rem; }
         .logo { font-size: 2.2rem; font-weight: 700; color: #3a2a1a; letter-spacing: 3px; }
         .logo span { color: var(--accent); }
@@ -45,6 +47,7 @@
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* 幸运色 */
         .lucky-color {
             background: linear-gradient(135deg, #fff8f0, #ffffff);
             border-left: 5px solid var(--accent); border-radius: 16px;
@@ -55,9 +58,10 @@
         .lucky-text { font-size: 0.95rem; color: #5e4c3a; }
         .lucky-text strong { font-size: 1.1rem; color: #3a2a1a; }
 
+        /* 仪表盘卡片网格 */
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
         .card {
-            background: var(--card); border-radius: 18px; padding: 2rem 1rem;
+            background: var(--card-bg); border-radius: 18px; padding: 2rem 1rem;
             text-align: center; box-shadow: var(--shadow); cursor: pointer;
             transition: all 0.25s; border: 1px solid #f0e8dd; text-decoration: none; color: inherit;
             display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
@@ -67,23 +71,105 @@
         .card-title { font-weight: 600; font-size: 1.1rem; color: #3a2a1a; }
         .card-desc { font-size: 0.8rem; color: #9b8b7a; line-height: 1.4; }
 
+        /* ===== 新版文章卡片样式 ===== */
         .article-card {
-            background: var(--card); border-radius: 16px; padding: 1.8rem;
-            margin-bottom: 1.5rem; box-shadow: var(--shadow); cursor: pointer;
-            transition: all 0.25s; border: 1px solid #f0e8dd;
+            background: var(--card-bg);
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.25s;
+            border: 1px solid #f0e8dd;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
-        .article-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.07); }
-        .article-card h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.4rem; color: #2c2416; }
-        .meta { font-size: 0.8rem; color: #ab9a86; margin-bottom: 0.8rem; }
-        .summary { color: #5f5346; }
-        .full-content {
-            display: none; margin-top: 1.2rem; padding-top: 1.2rem;
-            border-top: 1px dashed #e4d9cd; color: #3d3529; line-height: 1.9;
-            white-space: pre-wrap;
+        .article-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.07);
         }
-        .article-card.open .full-content { display: block; }
+        /* 封面图 */
+        .article-cover {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            background: #e8ddd0;
+        }
+        /* 卡片内容区 */
+        .article-body {
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        /* 标题行 */
+        .article-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c2416;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        /* 底部信息行：头像 + 数据 */
+        .article-meta-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            color: #8b7a65;
+        }
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .author-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .stats {
+            display: flex;
+            gap: 1rem;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
 
+        /* 全文展开区域 */
+        .full-content {
+            display: none;
+            padding: 0 1.5rem 1.5rem;
+            border-top: 1px dashed #e4d9cd;
+            margin-top: 0.5rem;
+            color: #3d3529;
+            line-height: 1.9;
+            white-space: pre-wrap;
+            animation: fadeIn 0.3s ease;
+        }
+        .article-card.open .full-content {
+            display: block;
+        }
+        .article-card.open {
+            cursor: default;
+        }
+        /* 提示点击 */
+        .click-hint {
+            font-size: 0.75rem;
+            color: #b7a797;
+            text-align: right;
+            margin-top: 0.2rem;
+        }
+        /* 加载中 */
         .loading { text-align: center; color: #8b7a65; padding: 3rem 0; }
+
         footer {
             text-align: center; padding: 2rem 1rem; color: #b7a797;
             font-size: 0.85rem; border-top: 1px solid #e8ddd0; margin-top: auto;
@@ -92,6 +178,7 @@
 </head>
 <body>
 <div class="container">
+    <!-- 首页仪表盘 -->
     <div class="page active" id="page-home">
         <div class="header">
             <div class="logo">风起<span>拾光</span></div>
@@ -118,11 +205,13 @@
         </div>
     </div>
 
+    <!-- 文字页 -->
     <div class="page" id="page-blog">
         <div class="back-row"><button class="back-btn" onclick="navigateTo('/')">← 返回首页</button></div>
         <div id="articlesContainer"></div>
     </div>
 
+    <!-- 工具页 -->
     <div class="page" id="page-tools">
         <div class="back-row"><button class="back-btn" onclick="navigateTo('/')">← 返回首页</button></div>
         <div style="margin-bottom: 1.5rem;">
@@ -142,9 +231,13 @@
 <footer>© 2026 风起 · 安静写字，温柔记录</footer>
 
 <script>
-    // 🔴 替换为你的 articles.json Raw 地址（用户名改成你的）
+    // ======================= 配置 =======================
     const ARTICLES_JSON_URL = 'https://raw.githubusercontent.com/fengtinglan/blog/main/articles.json';
+    const DEFAULT_AVATAR = 'https://gips1.baidu.com/it/u=819355347,3742778360&fm=3074&app=3074&f=PNG?w=2048&h=2048';
+    const DEFAULT_COVER = 'http://img1.baidu.com/it/u=4244987539,1765968336&fm=253&fmt=auto&app=138&f=JPEG?w=889&h=500';
+    // ====================================================
 
+    // 今日幸运色
     const dayColors = [
         { name: '珊瑚橘', code: '#FA7A61' },
         { name: '月光蓝', code: '#7A9EB1' },
@@ -159,6 +252,7 @@
     document.getElementById('luckyColorBox').style.backgroundColor = luckyColor.code;
     document.getElementById('luckyColorName').textContent = luckyColor.name + ' ' + luckyColor.code;
 
+    // 路由
     function getRoute() {
         let hash = location.hash.replace('#', '');
         if (!hash || hash === '/') return '/';
@@ -176,14 +270,29 @@
     window.addEventListener('hashchange', () => showPage(getRoute()));
     window.addEventListener('load', () => showPage(getRoute()));
 
+    // 生成伪随机浏览/点赞数（基于标题字符串）
+    function getPseudoStats(title) {
+        let hash = 0;
+        for (let i = 0; i < title.length; i++) {
+            hash = ((hash << 5) - hash) + title.charCodeAt(i);
+            hash |= 0;
+        }
+        const views = Math.abs(hash % 3000) + 100;      // 100~3100
+        const likes = Math.abs((hash * 13) % 500) + 10; // 10~510
+        return { views, likes };
+    }
+
+    // 加载文章
     async function loadArticles() {
         const container = document.getElementById('articlesContainer');
         container.innerHTML = '<div class="loading">📡 正在加载文章...</div>';
+
         let articles = [];
         try {
             const cached = localStorage.getItem('feng_blog_cache');
             if (cached) { articles = JSON.parse(cached); renderArticles(articles); }
         } catch(e) {}
+
         try {
             const response = await fetch(ARTICLES_JSON_URL + '?t=' + Date.now());
             if (!response.ok) throw new Error('网络错误');
@@ -196,6 +305,7 @@
             }
         }
     }
+
     function renderArticles(articles) {
         const container = document.getElementById('articlesContainer');
         if (!articles || articles.length === 0) {
@@ -204,15 +314,36 @@
         }
         container.innerHTML = '';
         articles.forEach(article => {
+            const stats = getPseudoStats(article.title);
+
             const card = document.createElement('div');
             card.className = 'article-card';
+
             card.innerHTML = `
-                <h2>${article.title}</h2>
-                <div class="meta">📅 ${article.date}</div>
-                <div class="summary">${article.summary || ''}</div>
+                <img class="article-cover" src="${DEFAULT_COVER}" alt="cover" loading="lazy"
+                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22160%22%3E%3Crect fill=%22%23e8ddd0%22 width=%22800%22 height=%22160%22/%3E%3Ctext fill=%22%23b7a797%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2220%22%3E📷%3C/text%3E%3C/svg%3E';">
+                <div class="article-body">
+                    <div class="article-title">${article.title}</div>
+                    <div class="article-meta-bottom">
+                        <div class="author-info">
+                            <img class="author-avatar" src="${DEFAULT_AVATAR}" alt="avatar" onerror="this.style.display='none';">
+                            <span>风起</span>
+                            <span style="margin-left:0.3rem; color:#ab9a86;">· ${article.date}</span>
+                        </div>
+                        <div class="stats">
+                            <span class="stat-item">👁️ ${stats.views}</span>
+                            <span class="stat-item">❤️ ${stats.likes}</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="full-content">${article.content}</div>
             `;
-            card.addEventListener('click', function(e) { this.classList.toggle('open'); });
+
+            card.addEventListener('click', function(e) {
+                // 点击封面、标题、信息区都可以展开，但不要因为点内部链接而冒泡
+                this.classList.toggle('open');
+            });
+
             container.appendChild(card);
         });
     }
