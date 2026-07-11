@@ -11,41 +11,61 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.2.2
-      
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
       - name: Generate articles.json
         run: |
-          echo "[" > articles.json
-          first=true
-          for file in $(ls posts/*.md | sort -r); do
-            filename=$(basename "$file" .md)
-            date_part=$(echo "$filename" | cut -d'-' -f1-3)
-            title_part=$(echo "$filename" | cut -d'-' -f4-)
-            
-            content=$(cat "$file" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
-            
-            first_line=$(head -n 1 "$file")
-            if [[ "$first_line" == \#* ]]; then
-              title_part="${first_line#\# }"
-              content=$(tail -n +2 "$file" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
-            fi
-            
-            summary=$(echo "$content" | cut -c1-150)
-            
-            if [ "$first" = true ]; then
-              first=false
-            else
-              echo "," >> articles.json
-            fi
-            
-            echo "  {" >> articles.json
-            echo "    \"title\": \"$title_part\"," >> articles.json
-            echo "    \"date\": \"$date_part\"," >> articles.json
-            echo "    \"summary\": \"$summary...\"," >> articles.json
-            echo "    \"content\": \"$content\"" >> articles.json
-            echo "  }" >> articles.json
-          done
-          echo "]" >> articles.json
-          
+          python3 - <<'PYEOF'
+          import os, json, re
+
+          posts_dir = "posts"
+          articles = []
+
+          if not os.path.exists(posts_dir):
+              print("[]")
+              exit(0)
+
+          for filename in sorted(os.listdir(posts_dir), reverse=True):
+              if not filename.endswith(".md"):
+                  continue
+              filepath = os.path.join(posts_dir, filename)
+              with open(filepath, "r", encoding="utf-8") as f:
+                  lines = f.readlines()
+
+              # 文件名格式: YYYY-MM-DD-标题.md
+              name_no_ext = filename[:-3]  # 去掉 .md
+              parts = name_no_ext.split("-", 3)
+              if len(parts) < 4:
+                  continue
+              date_part = "-".join(parts[0:3])
+              title_part = parts[3]
+
+              if lines and lines[0].startswith("# "):
+                  title_part = lines[0][2:].strip()
+                  body_lines = lines[1:]
+              else:
+                  body_lines = lines
+
+              content = "".join(body_lines).strip()
+              summary = content[:150] + ("..." if len(content) > 150 else "")
+
+              articles.append({
+                  "title": title_part,
+                  "date": date_part,
+                  "summary": summary,
+                  "content": content
+              })
+
+          with open("articles.json", "w", encoding="utf-8") as f:
+              json.dump(articles, f, ensure_ascii=False, indent=2)
+
+          print(f"Generated articles.json with {len(articles)} articles.")
+          PYEOF
+
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions"
