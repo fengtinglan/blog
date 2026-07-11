@@ -29,16 +29,8 @@
             flex: 1;
             width: 100%;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-        .logo {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #3a2a1a;
-            letter-spacing: 3px;
-        }
+        .header { text-align: center; margin-bottom: 2.5rem; }
+        .logo { font-size: 2.2rem; font-weight: 700; color: #3a2a1a; letter-spacing: 3px; }
         .logo span { color: var(--accent); }
         .subtitle { color: #8b7a65; margin-top: 0.3rem; font-size: 0.95rem; }
         .back-row { margin-bottom: 1.8rem; }
@@ -59,28 +51,18 @@
             padding: 1rem 1.5rem; margin-bottom: 2.5rem;
             display: flex; align-items: center; gap: 1rem; box-shadow: var(--shadow);
         }
-        .color-box {
-            width: 48px; height: 48px; border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: background 0.5s;
-        }
+        .color-box { width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .lucky-text { font-size: 0.95rem; color: #5e4c3a; }
         .lucky-text strong { font-size: 1.1rem; color: #3a2a1a; }
 
-        .grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1.5rem; margin-bottom: 2rem;
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
         .card {
             background: var(--card); border-radius: 18px; padding: 2rem 1rem;
             text-align: center; box-shadow: var(--shadow); cursor: pointer;
-            transition: all 0.25s; border: 1px solid #f0e8dd;
-            text-decoration: none; color: inherit; display: flex;
-            flex-direction: column; align-items: center; gap: 0.8rem;
+            transition: all 0.25s; border: 1px solid #f0e8dd; text-decoration: none; color: inherit;
+            display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
         }
-        .card:hover {
-            transform: translateY(-4px); box-shadow: 0 14px 28px rgba(0,0,0,0.07);
-            border-color: #d4b896;
-        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 14px 28px rgba(0,0,0,0.07); border-color: #d4b896; }
         .card-icon { font-size: 2.5rem; }
         .card-title { font-weight: 600; font-size: 1.1rem; color: #3a2a1a; }
         .card-desc { font-size: 0.8rem; color: #9b8b7a; line-height: 1.4; }
@@ -97,6 +79,7 @@
         .full-content {
             display: none; margin-top: 1.2rem; padding-top: 1.2rem;
             border-top: 1px dashed #e4d9cd; color: #3d3529; line-height: 1.9;
+            white-space: pre-wrap;
         }
         .article-card.open .full-content { display: block; }
 
@@ -109,7 +92,6 @@
 </head>
 <body>
 <div class="container">
-    <!-- 首页仪表盘 -->
     <div class="page active" id="page-home">
         <div class="header">
             <div class="logo">风起<span>拾光</span></div>
@@ -136,13 +118,11 @@
         </div>
     </div>
 
-    <!-- 文字页 -->
     <div class="page" id="page-blog">
         <div class="back-row"><button class="back-btn" onclick="navigateTo('/')">← 返回首页</button></div>
         <div id="articlesContainer"></div>
     </div>
 
-    <!-- 工具页 -->
     <div class="page" id="page-tools">
         <div class="back-row"><button class="back-btn" onclick="navigateTo('/')">← 返回首页</button></div>
         <div style="margin-bottom: 1.5rem;">
@@ -162,12 +142,9 @@
 <footer>© 2026 风起 · 安静写字，温柔记录</footer>
 
 <script>
-    // ======================= 配置 =======================
-    // 将下面的链接改为你 articles.json 的 raw 地址
-    const ARTICLES_JSON_URL = 'https://raw.githubusercontent.com/你的GitHub用户名/你的仓库名/main/articles.json';
-    // ====================================================
+    // 🔴 替换为你的 articles.json Raw 地址（用户名改成你的）
+    const ARTICLES_JSON_URL = 'https://raw.githubusercontent.com/fengtinglan/blog/main/articles.json';
 
-    // 今日幸运色
     const dayColors = [
         { name: '珊瑚橘', code: '#FA7A61' },
         { name: '月光蓝', code: '#7A9EB1' },
@@ -182,63 +159,43 @@
     document.getElementById('luckyColorBox').style.backgroundColor = luckyColor.code;
     document.getElementById('luckyColorName').textContent = luckyColor.name + ' ' + luckyColor.code;
 
-    // 路由
     function getRoute() {
         let hash = location.hash.replace('#', '');
         if (!hash || hash === '/') return '/';
         if (hash[0] !== '/') hash = '/' + hash;
         return hash;
     }
-
     function showPage(route) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        const pageMap = {
-            '/': 'page-home',
-            '/blog': 'page-blog',
-            '/tools': 'page-tools'
-        };
+        const pageMap = { '/': 'page-home', '/blog': 'page-blog', '/tools': 'page-tools' };
         const pageId = pageMap[route] || 'page-home';
         document.getElementById(pageId).classList.add('active');
         if (route === '/blog') loadArticles();
     }
-
-    function navigateTo(path) {
-        location.hash = '#' + path;
-    }
-
+    function navigateTo(path) { location.hash = '#' + path; }
     window.addEventListener('hashchange', () => showPage(getRoute()));
     window.addEventListener('load', () => showPage(getRoute()));
 
-    // 加载文章
     async function loadArticles() {
         const container = document.getElementById('articlesContainer');
         container.innerHTML = '<div class="loading">📡 正在加载文章...</div>';
-
-        // 先尝试从 localStorage 获取缓存（可选）
         let articles = [];
         try {
             const cached = localStorage.getItem('feng_blog_cache');
-            if (cached) {
-                articles = JSON.parse(cached);
-                renderArticles(articles);
-            }
+            if (cached) { articles = JSON.parse(cached); renderArticles(articles); }
         } catch(e) {}
-
         try {
-            const response = await fetch(ARTICLES_JSON_URL);
+            const response = await fetch(ARTICLES_JSON_URL + '?t=' + Date.now());
             if (!response.ok) throw new Error('网络错误');
             articles = await response.json();
-            // 更新缓存
             localStorage.setItem('feng_blog_cache', JSON.stringify(articles));
             renderArticles(articles);
         } catch (error) {
             if (articles.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:#b04545;">加载文章失败，请稍后再试。</p>';
             }
-            console.error('文章加载出错:', error);
         }
     }
-
     function renderArticles(articles) {
         const container = document.getElementById('articlesContainer');
         if (!articles || articles.length === 0) {
@@ -255,9 +212,7 @@
                 <div class="summary">${article.summary || ''}</div>
                 <div class="full-content">${article.content}</div>
             `;
-            card.addEventListener('click', function(e) {
-                this.classList.toggle('open');
-            });
+            card.addEventListener('click', function(e) { this.classList.toggle('open'); });
             container.appendChild(card);
         });
     }
