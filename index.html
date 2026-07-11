@@ -36,7 +36,7 @@
         }
         .fade-in-up {
             opacity: 0;
-            animation: fadeInUp 0.6s ease forwards;
+            animation: fadeInUp 0.8s ease forwards;   /* 动画时长调为 0.8s */
         }
 
         .page { display: none; }
@@ -137,6 +137,25 @@
         .card-icon { font-size: 2.5rem; }
         .card-title { font-weight: 600; font-size: 1.1rem; color: #3a2a1a; }
         .card-desc { font-size: 0.8rem; color: #9b8b7a; line-height: 1.4; }
+
+        /* 表格卡片样式，强制等高 */
+        .table-card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.25s;
+            border: 1px solid #f0e8dd;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+        .table-card:hover { transform: translateY(-4px); box-shadow: 0 14px 28px rgba(0,0,0,0.07); border-color: #d4b896; }
 
         .filter-bar {
             background: var(--card-bg); border-radius: 16px; padding: 1rem 1.3rem;
@@ -294,28 +313,31 @@
         </div>
     </div>
 
-    <!-- 阅读版本 - 纯内联两列，无 CSS 干扰 -->
+    <!-- 阅读版本 - 表格两列，等高对齐，标题已简化 -->
     <div class="page" id="page-legado-versions">
         <div class="back-row"><button class="back-btn" onclick="navigateTo('/legado')">← 返回 Legado</button></div>
         <div style="margin-bottom: 1.5rem;">
             <h2 style="color: #3a2a1a; margin-bottom: 0.2rem;">📦 阅读版本</h2>
             <div style="color: #8b7a65; font-size:0.9rem;">选择你需要的版本前往下载</div>
         </div>
-        <!-- 强制两列容器 -->
-        <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; width: 100%;">
-            <div onclick="window.open('https://github.com/HapeLee/legado-with-MD3/releases', '_blank')"
-                 style="flex: 1 1 calc(50% - 0.75rem); min-width: 200px; background: #ffffff; border-radius: 18px; padding: 2rem 1rem; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.04); cursor: pointer; border: 1px solid #f0e8dd; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
-                <div style="font-size: 2.5rem;">🎨</div>
-                <div style="font-weight: 600; font-size: 1.1rem; color: #3a2a1a;">MD3</div>
-                <div style="font-size: 0.8rem; color: #9b8b7a; line-height: 1.4;">HapeLee 版</div>
-            </div>
-            <div onclick="window.open('https://github.com/Suml-1/Legado_Max/releases/', '_blank')"
-                 style="flex: 1 1 calc(50% - 0.75rem); min-width: 200px; background: #ffffff; border-radius: 18px; padding: 2rem 1rem; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.04); cursor: pointer; border: 1px solid #f0e8dd; display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
-                <div style="font-size: 2.5rem;">🚀</div>
-                <div style="font-weight: 600; font-size: 1.1rem; color: #3a2a1a;">Max (suml-1)</div>
-                <div style="font-size: 0.8rem; color: #9b8b7a; line-height: 1.4;">Suml-1 版</div>
-            </div>
-        </div>
+        <table style="width: 100%; border-collapse: collapse; border-spacing: 1.5rem;">
+            <tr>
+                <td style="width: 50%; padding: 0 0.75rem 0 0; vertical-align: top;">
+                    <div class="table-card" onclick="window.open('https://github.com/HapeLee/legado-with-MD3/releases', '_blank')">
+                        <div class="card-icon">🎨</div>
+                        <div class="card-title">MD3</div>
+                        <div class="card-desc">HapeLee 版</div>
+                    </div>
+                </td>
+                <td style="width: 50%; padding: 0 0 0 0.75rem; vertical-align: top;">
+                    <div class="table-card" onclick="window.open('https://github.com/Suml-1/Legado_Max/releases/', '_blank')">
+                        <div class="card-icon">🚀</div>
+                        <div class="card-title">Max</div>
+                        <div class="card-desc">Suml-1 版</div>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <!-- 工具页 -->
@@ -410,7 +432,7 @@
                 items.forEach((el, i) => {
                     el.classList.remove('fade-in-up');
                     void el.offsetWidth;
-                    el.style.animationDelay = `${i * 0.12}s`;
+                    el.style.animationDelay = `${i * 0.18}s`;   // 欢迎页稍慢
                     el.classList.add('fade-in-up');
                 });
             } else if (targetId === 'page-blog') {
@@ -418,12 +440,12 @@
             } else if (targetId === 'page-post') {
                 renderPostDetail(route);
             } else {
-                // 给卡片添加动画
-                const cards = target.querySelectorAll('.card');
+                // 给所有 .card 和 .table-card 添加动画，间隔改为 0.2s
+                const cards = target.querySelectorAll('.card, .table-card');
                 cards.forEach((card, i) => {
                     card.classList.remove('fade-in-up');
                     void card.offsetWidth;
-                    card.style.animationDelay = `${i * 0.08}s`;
+                    card.style.animationDelay = `${i * 0.2}s`;
                     card.classList.add('fade-in-up');
                 });
             }
