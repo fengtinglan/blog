@@ -68,7 +68,7 @@
         .card-title { font-weight: 600; font-size: 1.1rem; color: #3a2a1a; }
         .card-desc { font-size: 0.8rem; color: #9b8b7a; line-height: 1.4; }
 
-        /* 文章列表卡片（类似B站） */
+        /* 文章列表卡片 */
         .article-card {
             background: var(--card-bg);
             border-radius: 16px;
@@ -81,10 +81,7 @@
             display: flex;
             flex-direction: column;
         }
-        .article-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.07);
-        }
+        .article-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.07); }
         .article-cover {
             width: 100%;
             height: 160px;
@@ -189,7 +186,6 @@
 </head>
 <body>
 <div class="container">
-    <!-- 首页仪表盘 -->
     <div class="page active" id="page-home">
         <div class="header">
             <div class="logo">风起<span>拾光</span></div>
@@ -216,13 +212,11 @@
         </div>
     </div>
 
-    <!-- 文字列表页 -->
     <div class="page" id="page-blog">
         <div class="back-row"><button class="back-btn" onclick="navigateTo('/')">← 返回首页</button></div>
         <div id="articlesContainer"></div>
     </div>
 
-    <!-- 工具页 -->
     <div class="page" id="page-tools">
         <div class="back-row"><button class="back-btn" onclick="navigateTo('/')">← 返回首页</button></div>
         <div style="margin-bottom: 1.5rem;">
@@ -238,7 +232,6 @@
         </div>
     </div>
 
-    <!-- 文章详情页 -->
     <div class="page" id="page-post">
         <div class="back-row"><button class="back-btn" onclick="history.back()">← 返回文章列表</button></div>
         <div id="postDetailContainer" class="post-detail"></div>
@@ -254,10 +247,9 @@
     const DEFAULT_COVER = 'http://img1.baidu.com/it/u=4244987539,1765968336&fm=253&fmt=auto&app=138&f=JPEG?w=889&h=500';
     // ====================================================
 
-    // 全局文章数据
     let allArticles = [];
 
-    // 今日幸运色
+    // 幸运色
     const dayColors = [
         { name: '珊瑚橘', code: '#FA7A61' },
         { name: '月光蓝', code: '#7A9EB1' },
@@ -271,15 +263,6 @@
     const luckyColor = dayColors[today];
     document.getElementById('luckyColorBox').style.backgroundColor = luckyColor.code;
     document.getElementById('luckyColorName').textContent = luckyColor.name + ' ' + luckyColor.code;
-
-    // 生成文章的唯一标识（slug）
-    function slugify(title) {
-        return title
-            .toLowerCase()
-            .replace(/[^\w\u4e00-\u9fa5]+/g, '-') // 非字母数字中文转为连字符
-            .replace(/^-+|-+$/g, '')              // 去掉首尾连字符
-            .substring(0, 50);                     // 限制长度
-    }
 
     // 路由
     function getRoute() {
@@ -295,7 +278,7 @@
             '/': 'page-home',
             '/blog': 'page-blog',
             '/tools': 'page-tools',
-            '/post': 'page-post'  // 不精确匹配，后面处理
+            '/post': 'page-post'
         };
 
         let pageId;
@@ -306,7 +289,7 @@
             pageId = pageMap[route] || 'page-home';
         }
         document.getElementById(pageId).classList.add('active');
-        if (route === '/blog') loadArticles();
+        if (route === '/blog') loadArticleList();
     }
 
     function navigateTo(path) {
@@ -315,11 +298,9 @@
 
     window.addEventListener('hashchange', () => showPage(getRoute()));
     window.addEventListener('load', () => {
-        // 预加载文章数据，然后再根据路由显示页面
         fetchArticles().then(() => showPage(getRoute()));
     });
 
-    // 获取文章数据
     async function fetchArticles() {
         try {
             const response = await fetch(ARTICLES_JSON_URL + '?t=' + Date.now());
@@ -328,7 +309,6 @@
                 localStorage.setItem('feng_blog_cache', JSON.stringify(allArticles));
             }
         } catch (e) {
-            // 如果网络失败，尝试使用缓存
             const cached = localStorage.getItem('feng_blog_cache');
             if (cached) {
                 try { allArticles = JSON.parse(cached); } catch(e2) {}
@@ -336,11 +316,9 @@
         }
     }
 
-    // 加载文章列表
-    async function loadArticles() {
+    async function loadArticleList() {
         const container = document.getElementById('articlesContainer');
         container.innerHTML = '<div class="loading">📡 正在加载文章...</div>';
-        // 确保已有数据
         if (allArticles.length === 0) {
             await fetchArticles();
         }
@@ -355,7 +333,6 @@
         }
         container.innerHTML = '';
         allArticles.forEach(article => {
-            const slug = slugify(article.title);
             const card = document.createElement('div');
             card.className = 'article-card';
             card.innerHTML = `
@@ -373,17 +350,17 @@
                 </div>
             `;
             card.addEventListener('click', () => {
-                navigateTo('/post/' + slug);
+                navigateTo('/post/' + encodeURIComponent(article.id));
             });
             container.appendChild(card);
         });
     }
 
-    // 渲染文章详情
     function renderPostDetail(route) {
         const container = document.getElementById('postDetailContainer');
-        const slug = route.replace('/post/', '');
-        const article = allArticles.find(a => slugify(a.title) === slug);
+        const slug = decodeURIComponent(route.replace('/post/', ''));
+        // 根据 id 查找文章，不再使用标题生成的 slug
+        const article = allArticles.find(a => a.id === slug);
         if (!article) {
             container.innerHTML = '<p style="text-align:center; color:#b04545;">文章未找到</p>';
             return;
