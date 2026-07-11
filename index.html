@@ -68,6 +68,47 @@
         .card-title { font-weight: 600; font-size: 1.1rem; color: #3a2a1a; }
         .card-desc { font-size: 0.8rem; color: #9b8b7a; line-height: 1.4; }
 
+        /* 筛选栏 */
+        .filter-bar {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid #f0e8dd;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+        .filter-bar input,
+        .filter-bar select {
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #e0d3c2;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            background: #fefcf9;
+            color: #3a2a1a;
+        }
+        .filter-bar input[type="date"] {
+            width: 140px;
+        }
+        .filter-bar input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+        }
+        .filter-bar select {
+            min-width: 100px;
+        }
+        .filter-bar label {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+            color: #5e4c3a;
+        }
+
         /* 文章列表卡片 */
         .article-card {
             background: var(--card-bg);
@@ -122,6 +163,10 @@
             height: 28px;
             border-radius: 50%;
             object-fit: cover;
+        }
+        .word-count {
+            color: #ab9a86;
+            font-size: 0.8rem;
         }
 
         /* 文章详情页 */
@@ -186,6 +231,7 @@
 </head>
 <body>
 <div class="container">
+    <!-- 首页仪表盘 -->
     <div class="page active" id="page-home">
         <div class="header">
             <div class="logo">风起<span>拾光</span></div>
@@ -212,11 +258,25 @@
         </div>
     </div>
 
+    <!-- 文字列表页 -->
     <div class="page" id="page-blog">
         <div class="back-row"><button class="back-btn" onclick="navigateTo('/')">← 返回首页</button></div>
+        
+        <!-- 筛选栏 -->
+        <div class="filter-bar">
+            <input type="text" id="searchInput" placeholder="🔍 搜索文章标题..." oninput="applyFilters()">
+            <label>📅 从 <input type="date" id="dateFrom" onchange="applyFilters()"></label>
+            <label>到 <input type="date" id="dateTo" onchange="applyFilters()"></label>
+            <select id="sortOrder" onchange="applyFilters()">
+                <option value="date">🕒 最新</option>
+                <option value="wordcount">📏 字数</option>
+            </select>
+        </div>
+
         <div id="articlesContainer"></div>
     </div>
 
+    <!-- 工具页 -->
     <div class="page" id="page-tools">
         <div class="back-row"><button class="back-btn" onclick="navigateTo('/')">← 返回首页</button></div>
         <div style="margin-bottom: 1.5rem;">
@@ -232,6 +292,7 @@
         </div>
     </div>
 
+    <!-- 文章详情页 -->
     <div class="page" id="page-post">
         <div class="back-row"><button class="back-btn" onclick="history.back()">← 返回文章列表</button></div>
         <div id="postDetailContainer" class="post-detail"></div>
@@ -322,17 +383,62 @@
         if (allArticles.length === 0) {
             await fetchArticles();
         }
-        renderArticleList();
+        applyFilters(); // 初始渲染会在这里触发
     }
 
-    function renderArticleList() {
+    // 过滤、排序、渲染
+    function applyFilters() {
+        const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+        const sortBy = document.getElementById('sortOrder').value;
+
+        // 深拷贝，避免修改原数据
+        let filtered = allArticles.slice();
+
+        // 标题搜索
+        if (searchText) {
+            filtered = filtered.filter(a => a.title.toLowerCase().includes(searchText));
+        }
+
+        // 日期筛选
+        if (dateFrom) {
+            filtered = filtered.filter(a => a.date >= dateFrom);
+        }
+        if (dateTo) {
+            filtered = filtered.filter(a => a.date <= dateTo);
+        }
+
+        // 排序
+        if (sortBy === 'date') {
+            filtered.sort((a, b) => b.date.localeCompare(a.date)); // 最新在前
+        } else if (sortBy === 'wordcount') {
+            filtered.sort((a, b) => (b.content ? b.content.length : 0) - (a.content ? a.content.length : 0));
+        }
+
+        renderArticleList(filtered);
+    }
+
+    function getWordCount(content) {
+        // 去除 HTML 标签和空白字符，统计中文字符数和英文单词数
+        const text = content.replace(/<[^>]*>/g, '').trim();
+        if (!text) return 0;
+        // 简单统计：中文算一个字符，英文单词按空格分开计数
+        const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
+        const englishWords = text.replace(/[\u4e00-\u9fa5]/g, ' ').split(/\s+/).filter(Boolean);
+        return chineseChars.length + englishWords.length;
+    }
+
+    function renderArticleList(articles) {
         const container = document.getElementById('articlesContainer');
-        if (!allArticles || allArticles.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#8b7a65;">暂时还没有文章。</p>';
+        if (!articles || articles.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#8b7a65;">没有找到匹配的文章。</p>';
             return;
         }
+
         container.innerHTML = '';
-        allArticles.forEach(article => {
+        articles.forEach(article => {
+            const wordCount = getWordCount(article.content);
             const card = document.createElement('div');
             card.className = 'article-card';
             card.innerHTML = `
@@ -346,6 +452,7 @@
                             <span>风起</span>
                             <span style="margin-left:0.3rem; color:#ab9a86;">· ${article.date}</span>
                         </div>
+                        <span class="word-count">${wordCount} 字</span>
                     </div>
                 </div>
             `;
@@ -356,10 +463,10 @@
         });
     }
 
+    // 渲染文章详情（不变）
     function renderPostDetail(route) {
         const container = document.getElementById('postDetailContainer');
         const slug = decodeURIComponent(route.replace('/post/', ''));
-        // 根据 id 查找文章，不再使用标题生成的 slug
         const article = allArticles.find(a => a.id === slug);
         if (!article) {
             container.innerHTML = '<p style="text-align:center; color:#b04545;">文章未找到</p>';
