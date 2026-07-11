@@ -30,7 +30,6 @@
             width: 100%;
         }
 
-        /* 头部 */
         .header { text-align: center; margin-bottom: 2.5rem; }
         .logo { font-size: 2.2rem; font-weight: 700; color: #3a2a1a; letter-spacing: 3px; }
         .logo span { color: var(--accent); }
@@ -47,7 +46,6 @@
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 幸运色 */
         .lucky-color {
             background: linear-gradient(135deg, #fff8f0, #ffffff);
             border-left: 5px solid var(--accent); border-radius: 16px;
@@ -58,7 +56,6 @@
         .lucky-text { font-size: 0.95rem; color: #5e4c3a; }
         .lucky-text strong { font-size: 1.1rem; color: #3a2a1a; }
 
-        /* 仪表盘卡片网格 */
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
         .card {
             background: var(--card-bg); border-radius: 18px; padding: 2rem 1rem;
@@ -71,7 +68,7 @@
         .card-title { font-weight: 600; font-size: 1.1rem; color: #3a2a1a; }
         .card-desc { font-size: 0.8rem; color: #9b8b7a; line-height: 1.4; }
 
-        /* ===== 新版文章卡片样式 ===== */
+        /* 文章列表卡片（类似B站） */
         .article-card {
             background: var(--card-bg);
             border-radius: 16px;
@@ -88,21 +85,18 @@
             transform: translateY(-3px);
             box-shadow: 0 12px 28px rgba(0,0,0,0.07);
         }
-        /* 封面图 */
         .article-cover {
             width: 100%;
             height: 160px;
             object-fit: cover;
             background: #e8ddd0;
         }
-        /* 卡片内容区 */
         .article-body {
             padding: 1.2rem 1.5rem;
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
         }
-        /* 标题行 */
         .article-title {
             font-size: 1.3rem;
             font-weight: 600;
@@ -113,12 +107,11 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        /* 底部信息行：头像 + 数据 */
         .article-meta-bottom {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 0.8rem;
+            margin-top: 0.5rem;
             font-size: 0.85rem;
             color: #8b7a65;
         }
@@ -133,43 +126,61 @@
             border-radius: 50%;
             object-fit: cover;
         }
-        .stats {
-            display: flex;
-            gap: 1rem;
+
+        /* 文章详情页 */
+        .post-detail {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem 2rem 2.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid #f0e8dd;
         }
-        .stat-item {
+        .post-cover {
+            width: 100%;
+            max-height: 360px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            background: #e8ddd0;
+        }
+        .post-header {
             display: flex;
             align-items: center;
-            gap: 0.2rem;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
-
-        /* 全文展开区域 */
-        .full-content {
-            display: none;
-            padding: 0 1.5rem 1.5rem;
-            border-top: 1px dashed #e4d9cd;
-            margin-top: 0.5rem;
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .post-meta {
+            display: flex;
+            flex-direction: column;
+        }
+        .post-author {
+            font-weight: 600;
+            color: #3a2a1a;
+        }
+        .post-date {
+            font-size: 0.85rem;
+            color: #ab9a86;
+        }
+        .post-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            color: #2c2416;
+        }
+        .post-content {
+            line-height: 2;
+            font-size: 1.05rem;
             color: #3d3529;
-            line-height: 1.9;
             white-space: pre-wrap;
-            animation: fadeIn 0.3s ease;
         }
-        .article-card.open .full-content {
-            display: block;
-        }
-        .article-card.open {
-            cursor: default;
-        }
-        /* 提示点击 */
-        .click-hint {
-            font-size: 0.75rem;
-            color: #b7a797;
-            text-align: right;
-            margin-top: 0.2rem;
-        }
-        /* 加载中 */
-        .loading { text-align: center; color: #8b7a65; padding: 3rem 0; }
 
+        .loading { text-align: center; color: #8b7a65; padding: 3rem 0; }
         footer {
             text-align: center; padding: 2rem 1rem; color: #b7a797;
             font-size: 0.85rem; border-top: 1px solid #e8ddd0; margin-top: auto;
@@ -205,7 +216,7 @@
         </div>
     </div>
 
-    <!-- 文字页 -->
+    <!-- 文字列表页 -->
     <div class="page" id="page-blog">
         <div class="back-row"><button class="back-btn" onclick="navigateTo('/')">← 返回首页</button></div>
         <div id="articlesContainer"></div>
@@ -226,6 +237,12 @@
             </div>
         </div>
     </div>
+
+    <!-- 文章详情页 -->
+    <div class="page" id="page-post">
+        <div class="back-row"><button class="back-btn" onclick="history.back()">← 返回文章列表</button></div>
+        <div id="postDetailContainer" class="post-detail"></div>
+    </div>
 </div>
 
 <footer>© 2026 风起 · 安静写字，温柔记录</footer>
@@ -236,6 +253,9 @@
     const DEFAULT_AVATAR = 'https://gips1.baidu.com/it/u=819355347,3742778360&fm=3074&app=3074&f=PNG?w=2048&h=2048';
     const DEFAULT_COVER = 'http://img1.baidu.com/it/u=4244987539,1765968336&fm=253&fmt=auto&app=138&f=JPEG?w=889&h=500';
     // ====================================================
+
+    // 全局文章数据
+    let allArticles = [];
 
     // 今日幸运色
     const dayColors = [
@@ -252,6 +272,15 @@
     document.getElementById('luckyColorBox').style.backgroundColor = luckyColor.code;
     document.getElementById('luckyColorName').textContent = luckyColor.name + ' ' + luckyColor.code;
 
+    // 生成文章的唯一标识（slug）
+    function slugify(title) {
+        return title
+            .toLowerCase()
+            .replace(/[^\w\u4e00-\u9fa5]+/g, '-') // 非字母数字中文转为连字符
+            .replace(/^-+|-+$/g, '')              // 去掉首尾连字符
+            .substring(0, 50);                     // 限制长度
+    }
+
     // 路由
     function getRoute() {
         let hash = location.hash.replace('#', '');
@@ -259,66 +288,76 @@
         if (hash[0] !== '/') hash = '/' + hash;
         return hash;
     }
+
     function showPage(route) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        const pageMap = { '/': 'page-home', '/blog': 'page-blog', '/tools': 'page-tools' };
-        const pageId = pageMap[route] || 'page-home';
+        const pageMap = {
+            '/': 'page-home',
+            '/blog': 'page-blog',
+            '/tools': 'page-tools',
+            '/post': 'page-post'  // 不精确匹配，后面处理
+        };
+
+        let pageId;
+        if (route.startsWith('/post/')) {
+            pageId = 'page-post';
+            renderPostDetail(route);
+        } else {
+            pageId = pageMap[route] || 'page-home';
+        }
         document.getElementById(pageId).classList.add('active');
         if (route === '/blog') loadArticles();
     }
-    function navigateTo(path) { location.hash = '#' + path; }
-    window.addEventListener('hashchange', () => showPage(getRoute()));
-    window.addEventListener('load', () => showPage(getRoute()));
 
-    // 生成伪随机浏览/点赞数（基于标题字符串）
-    function getPseudoStats(title) {
-        let hash = 0;
-        for (let i = 0; i < title.length; i++) {
-            hash = ((hash << 5) - hash) + title.charCodeAt(i);
-            hash |= 0;
-        }
-        const views = Math.abs(hash % 3000) + 100;      // 100~3100
-        const likes = Math.abs((hash * 13) % 500) + 10; // 10~510
-        return { views, likes };
+    function navigateTo(path) {
+        location.hash = '#' + path;
     }
 
-    // 加载文章
-    async function loadArticles() {
-        const container = document.getElementById('articlesContainer');
-        container.innerHTML = '<div class="loading">📡 正在加载文章...</div>';
+    window.addEventListener('hashchange', () => showPage(getRoute()));
+    window.addEventListener('load', () => {
+        // 预加载文章数据，然后再根据路由显示页面
+        fetchArticles().then(() => showPage(getRoute()));
+    });
 
-        let articles = [];
-        try {
-            const cached = localStorage.getItem('feng_blog_cache');
-            if (cached) { articles = JSON.parse(cached); renderArticles(articles); }
-        } catch(e) {}
-
+    // 获取文章数据
+    async function fetchArticles() {
         try {
             const response = await fetch(ARTICLES_JSON_URL + '?t=' + Date.now());
-            if (!response.ok) throw new Error('网络错误');
-            articles = await response.json();
-            localStorage.setItem('feng_blog_cache', JSON.stringify(articles));
-            renderArticles(articles);
-        } catch (error) {
-            if (articles.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#b04545;">加载文章失败，请稍后再试。</p>';
+            if (response.ok) {
+                allArticles = await response.json();
+                localStorage.setItem('feng_blog_cache', JSON.stringify(allArticles));
+            }
+        } catch (e) {
+            // 如果网络失败，尝试使用缓存
+            const cached = localStorage.getItem('feng_blog_cache');
+            if (cached) {
+                try { allArticles = JSON.parse(cached); } catch(e2) {}
             }
         }
     }
 
-    function renderArticles(articles) {
+    // 加载文章列表
+    async function loadArticles() {
         const container = document.getElementById('articlesContainer');
-        if (!articles || articles.length === 0) {
+        container.innerHTML = '<div class="loading">📡 正在加载文章...</div>';
+        // 确保已有数据
+        if (allArticles.length === 0) {
+            await fetchArticles();
+        }
+        renderArticleList();
+    }
+
+    function renderArticleList() {
+        const container = document.getElementById('articlesContainer');
+        if (!allArticles || allArticles.length === 0) {
             container.innerHTML = '<p style="text-align:center; color:#8b7a65;">暂时还没有文章。</p>';
             return;
         }
         container.innerHTML = '';
-        articles.forEach(article => {
-            const stats = getPseudoStats(article.title);
-
+        allArticles.forEach(article => {
+            const slug = slugify(article.title);
             const card = document.createElement('div');
             card.className = 'article-card';
-
             card.innerHTML = `
                 <img class="article-cover" src="${DEFAULT_COVER}" alt="cover" loading="lazy"
                      onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22160%22%3E%3Crect fill=%22%23e8ddd0%22 width=%22800%22 height=%22160%22/%3E%3Ctext fill=%22%23b7a797%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2220%22%3E📷%3C/text%3E%3C/svg%3E';">
@@ -330,22 +369,37 @@
                             <span>风起</span>
                             <span style="margin-left:0.3rem; color:#ab9a86;">· ${article.date}</span>
                         </div>
-                        <div class="stats">
-                            <span class="stat-item">👁️ ${stats.views}</span>
-                            <span class="stat-item">❤️ ${stats.likes}</span>
-                        </div>
                     </div>
                 </div>
-                <div class="full-content">${article.content}</div>
             `;
-
-            card.addEventListener('click', function(e) {
-                // 点击封面、标题、信息区都可以展开，但不要因为点内部链接而冒泡
-                this.classList.toggle('open');
+            card.addEventListener('click', () => {
+                navigateTo('/post/' + slug);
             });
-
             container.appendChild(card);
         });
+    }
+
+    // 渲染文章详情
+    function renderPostDetail(route) {
+        const container = document.getElementById('postDetailContainer');
+        const slug = route.replace('/post/', '');
+        const article = allArticles.find(a => slugify(a.title) === slug);
+        if (!article) {
+            container.innerHTML = '<p style="text-align:center; color:#b04545;">文章未找到</p>';
+            return;
+        }
+        container.innerHTML = `
+            <img class="post-cover" src="${DEFAULT_COVER}" alt="cover" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22240%22%3E%3Crect fill=%22%23e8ddd0%22 width=%22800%22 height=%22240%22/%3E%3C/svg%3E';">
+            <h1 class="post-title">${article.title}</h1>
+            <div class="post-header">
+                <img class="post-avatar" src="${DEFAULT_AVATAR}" alt="avatar">
+                <div class="post-meta">
+                    <span class="post-author">风起</span>
+                    <span class="post-date">${article.date}</span>
+                </div>
+            </div>
+            <div class="post-content">${article.content}</div>
+        `;
     }
 </script>
 </body>
