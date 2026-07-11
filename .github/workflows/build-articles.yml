@@ -1,0 +1,54 @@
+name: Build articles.json
+
+on:
+  push:
+    paths:
+      - 'posts/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Generate articles.json
+        run: |
+          echo "[" > articles.json
+          first=true
+          for file in $(ls posts/*.md | sort -r); do
+            filename=$(basename "$file" .md)
+            date_part=$(echo "$filename" | cut -d'-' -f1-3)
+            title_part=$(echo "$filename" | cut -d'-' -f4-)
+            
+            content=$(cat "$file" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+            
+            first_line=$(head -n 1 "$file")
+            if [[ "$first_line" == \#* ]]; then
+              title_part="${first_line#\# }"
+              content=$(tail -n +2 "$file" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+            fi
+            
+            summary=$(echo "$content" | cut -c1-150)
+            
+            if [ "$first" = true ]; then
+              first=false
+            else
+              echo "," >> articles.json
+            fi
+            
+            echo "  {" >> articles.json
+            echo "    \"title\": \"$title_part\"," >> articles.json
+            echo "    \"date\": \"$date_part\"," >> articles.json
+            echo "    \"summary\": \"$summary...\"," >> articles.json
+            echo "    \"content\": \"$content\"" >> articles.json
+            echo "  }" >> articles.json
+          done
+          echo "]" >> articles.json
+          
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add articles.json
+          git diff --staged --quiet || (git commit -m "Auto-update articles.json" && git push)
