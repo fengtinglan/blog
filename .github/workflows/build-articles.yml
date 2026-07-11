@@ -10,12 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
+        uses: actions/setup-python@v6
 
       - name: Generate articles.json
         run: |
@@ -26,7 +24,8 @@ jobs:
           articles = []
 
           if not os.path.exists(posts_dir):
-              print("[]")
+              with open("articles.json", "w", encoding="utf-8") as f:
+                  f.write("[]")
               exit(0)
 
           for filename in sorted(os.listdir(posts_dir), reverse=True):
@@ -44,6 +43,7 @@ jobs:
               date_part = "-".join(parts[0:3])
               title_part = parts[3]
 
+              # 如果第一行是 # 标题，则使用该标题
               if lines and lines[0].startswith("# "):
                   title_part = lines[0][2:].strip()
                   body_lines = lines[1:]
@@ -54,6 +54,7 @@ jobs:
               summary = content[:150] + ("..." if len(content) > 150 else "")
 
               articles.append({
+                  "id": name_no_ext,          # ← 新增唯一 ID
                   "title": title_part,
                   "date": date_part,
                   "summary": summary,
@@ -62,8 +63,6 @@ jobs:
 
           with open("articles.json", "w", encoding="utf-8") as f:
               json.dump(articles, f, ensure_ascii=False, indent=2)
-
-          print(f"Generated articles.json with {len(articles)} articles.")
           PYEOF
 
       - name: Commit and push if changed
